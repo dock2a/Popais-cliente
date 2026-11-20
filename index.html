@@ -1,0 +1,485 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#4A1A0A">
+<meta name="mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<link rel="manifest" href="manifest.webmanifest">
+<link rel="icon" href="ic_launcher.png">
+<link rel="apple-touch-icon" href="ic_launcher.png">
+<title>Popais Food</title>
+<style>
+:root{
+  --brown:#4A1A0A; --brown2:#6B2A12; --mustard:#E0B340; --cream:#F7E3B0;
+  --bg:#FBF4E4; --card:#FFFFFF; --text:#2A1208; --muted:#8a6f5e; --line:#ecdcbc;
+  --green:#2e9e5b; --red:#d6452b; --blue:#2b6fd6;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{margin:0;background:var(--bg);color:var(--text);font-family:system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;font-size:16px}
+button,input,select,textarea{font:inherit;color:inherit}
+button{cursor:pointer;border:0}
+.top{background:var(--brown);padding:calc(env(safe-area-inset-top) + 10px) 14px 10px;display:flex;align-items:center;justify-content:space-between;gap:10px;border-bottom:3px solid var(--mustard)}
+.brand{display:flex;align-items:center;gap:10px;min-width:0}
+.logo{height:44px;width:auto;border-radius:8px;display:block}
+.logotxt{color:var(--cream);font-weight:900;letter-spacing:.5px;font-size:20px}
+.pill{padding:8px 14px;border-radius:999px;font-weight:700;font-size:14px;white-space:nowrap}
+.pill.open{background:var(--green);color:#fff}
+.pill.closed{background:#7a4a3a;color:#ffd9cc}
+.info{display:flex;flex-wrap:wrap;gap:6px 14px;padding:10px 14px 0;font-size:14px;color:var(--brown2);font-weight:600}
+.info button{background:var(--mustard);color:var(--brown);border-radius:999px;padding:6px 12px;font-weight:800;font-size:13px}
+.note{background:#fff6d6;border-left:4px solid var(--mustard);padding:10px 12px;border-radius:8px;margin:10px 14px 0;font-size:14px}
+.note.red{background:#fde4de;border-left-color:var(--red)}
+.trk{display:block;width:calc(100% - 28px);margin:10px 14px 0;background:var(--brown);color:var(--cream);border-radius:14px;padding:12px 14px;font-weight:700;text-align:left;font-size:15px}
+.trk b{color:var(--mustard)}
+.chips{position:sticky;top:0;z-index:20;background:var(--bg);display:flex;gap:8px;overflow-x:auto;padding:10px 14px;margin-top:6px;border-bottom:1px solid var(--line)}
+.chip{flex:none;background:#fff;border:2px solid var(--line);border-radius:999px;padding:8px 14px;font-weight:700;font-size:14px;color:var(--brown2)}
+.chip.on{background:var(--brown);border-color:var(--brown);color:var(--cream)}
+.sec{padding:0 14px;scroll-margin-top:64px}
+.sec h2{margin:16px 0 8px;font-size:19px;color:var(--brown2)}
+.pc{display:flex;gap:12px;background:#fff;border:1px solid var(--line);border-radius:16px;padding:10px;margin-bottom:10px;cursor:pointer;box-shadow:0 2px 6px rgba(74,26,10,.05)}
+.pc.off{opacity:.5}
+.pi{flex:1;min-width:0;display:flex;flex-direction:column;gap:3px}
+.pi b{font-size:16px}
+.pi p{margin:0;color:var(--muted);font-size:14px;line-height:1.3;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden}
+.pi span{color:var(--brown2);font-weight:800;margin-top:auto}
+.pth{position:relative;width:96px;height:96px;border-radius:14px;background:var(--cream);display:flex;align-items:center;justify-content:center;font-size:34px;flex:none}
+.pth img{width:100%;height:100%;object-fit:cover;border-radius:14px}
+.pth i{position:absolute;right:-6px;bottom:-6px;background:var(--mustard);color:var(--brown);width:32px;height:32px;border-radius:50%;font-style:normal;font-weight:900;font-size:20px;display:flex;align-items:center;justify-content:center;box-shadow:0 2px 6px rgba(0,0,0,.25)}
+.empty{text-align:center;color:var(--muted);padding:40px 14px}
+.empty big{display:block;font-size:42px;margin-bottom:6px}
+.cartbar{position:fixed;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);background:var(--brown);color:var(--cream);border-radius:16px;padding:15px 16px;display:flex;justify-content:space-between;align-items:center;font-weight:800;font-size:16px;z-index:30;box-shadow:0 6px 18px rgba(0,0,0,.35);border:2px solid var(--mustard)}
+.cartbar em{font-style:normal;background:var(--mustard);color:var(--brown);border-radius:999px;min-width:26px;height:26px;line-height:26px;text-align:center;margin-right:8px;display:inline-block;padding:0 6px}
+.ov{position:fixed;inset:0;background:rgba(30,10,4,.6);display:flex;align-items:flex-end;justify-content:center;z-index:50}
+.sheet{background:var(--bg);width:100%;max-width:560px;max-height:92%;overflow-y:auto;border-radius:22px 22px 0 0;padding:18px 16px calc(env(safe-area-inset-bottom) + 18px)}
+h3{margin:0 0 12px;font-size:20px}
+.pimg{width:100%;aspect-ratio:16/9;max-height:210px;border-radius:14px;background:var(--cream);overflow:hidden;margin-bottom:12px;display:flex;align-items:center;justify-content:center;font-size:50px}
+.pimg img{width:100%;height:100%;object-fit:cover}
+.price{color:var(--brown2);font-weight:900;font-size:20px;margin:6px 0}
+.muted{color:var(--muted);font-size:14px}
+label.f{display:block;font-weight:700;font-size:14px;margin:12px 0 5px;color:var(--brown2)}
+input[type=text],input[type=tel],input:not([type]),select,textarea{width:100%;padding:13px 12px;border:2px solid var(--line);border-radius:12px;background:#fff;outline:none}
+input:focus,select:focus,textarea:focus{border-color:var(--mustard)}
+.two{display:flex;gap:10px}
+.step{display:flex;align-items:center;gap:12px}
+.step button{width:42px;height:42px;border-radius:50%;background:var(--cream);color:var(--brown);font-size:22px;font-weight:900}
+.step b{min-width:22px;text-align:center;font-size:18px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:6px;padding:14px 16px;border-radius:12px;font-weight:800;font-size:16px;text-decoration:none;text-align:center;background:var(--mustard);color:var(--brown)}
+.btn.dark{background:var(--brown);color:var(--cream)}
+.btn.green{background:var(--green);color:#fff}
+.btn.ghost{background:#fff;border:2px solid var(--line);color:var(--brown2)}
+.btn.full{width:100%}
+.btn.grow{flex:1}
+.btn:disabled{opacity:.5}
+.acts{display:flex;gap:8px;flex-wrap:wrap;margin-top:14px}
+.cl{display:flex;align-items:center;justify-content:space-between;gap:10px;padding:10px 0;border-bottom:1px solid var(--line)}
+.cli{flex:1;min-width:0;display:flex;flex-direction:column;gap:2px}
+.cli small{color:var(--muted)}
+.cli span{color:var(--brown2);font-weight:800}
+.tot{display:flex;justify-content:space-between;font-size:15px;margin:4px 0}
+.tot.big{font-size:20px;font-weight:900;margin-top:8px}
+.opts{display:flex;gap:8px;flex-wrap:wrap}
+.opt{flex:1;min-width:90px;background:#fff;border:2px solid var(--line);border-radius:12px;padding:12px 8px;font-weight:700;color:var(--brown2)}
+.opt.on{background:var(--brown);border-color:var(--brown);color:var(--cream)}
+.card{background:#fff;border:1px solid var(--line);border-radius:16px;padding:12px 14px;margin-top:12px}
+ul.its{list-style:none;margin:8px 0;padding:8px 0;border-top:1px dashed var(--line);border-bottom:1px dashed var(--line)}
+ul.its li{display:flex;flex-wrap:wrap;justify-content:space-between;gap:2px 8px;margin:5px 0}
+ul.its li small{flex-basis:100%;color:var(--muted)}
+.steps{display:flex;flex-direction:column;gap:10px;margin:14px 0}
+.stp{display:flex;align-items:center;gap:12px;color:var(--muted);font-weight:600}
+.stp i{width:30px;height:30px;border-radius:50%;background:var(--line);color:var(--muted);display:flex;align-items:center;justify-content:center;font-style:normal;font-weight:800;flex:none}
+.stp.on{color:var(--text)}
+.stp.on i{background:var(--green);color:#fff}
+.stp.cur{font-weight:900}
+.stp.cur i{box-shadow:0 0 0 4px rgba(46,158,91,.25)}
+.pix{display:flex;align-items:center;justify-content:space-between;gap:10px;word-break:break-all}
+#toast{position:fixed;left:50%;bottom:90px;transform:translateX(-50%);background:var(--brown);color:var(--cream);padding:12px 18px;border-radius:12px;font-weight:700;z-index:99;max-width:90%;text-align:center;display:none;box-shadow:0 6px 18px rgba(0,0,0,.3)}
+</style>
+</head>
+<body>
+<div id="app"></div>
+<div id="modal"></div>
+<div id="toast"></div>
+
+<script type="module">
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
+import { initializeFirestore, collection, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+
+const firebaseConfig = {
+  apiKey: "AIzaSyBeG0oZtYUQ6JUgXnCcpWTeGt1I-dDXiV0",
+  authDomain: "popais-food.firebaseapp.com",
+  projectId: "popais-food",
+  storageBucket: "popais-food.firebasestorage.app",
+  messagingSenderId: "836484126971",
+  appId: "1:836484126971:web:c317306b91b632f78bf85e"
+};
+const app = initializeApp(firebaseConfig);
+const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+
+/* ---------- utilidades ---------- */
+const $ = s => document.querySelector(s);
+const esc = s => String(s ?? '').replace(/[&<>"']/g, c => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;',"'":'&#39;'}[c]));
+const money = n => (Number(n) || 0).toLocaleString('pt-BR', { style: 'currency', currency: 'BRL' });
+const parseMoney = v => {
+  let s = String(v || '').trim().replace(/[^\d.,]/g, '');
+  if (s.includes(',')) s = s.replace(/\./g, '').replace(',', '.');
+  const n = parseFloat(s);
+  return isNaN(n) ? 0 : Math.round(n * 100) / 100;
+};
+let toastTimer;
+function toast(msg) {
+  const t = $('#toast'); t.textContent = msg; t.style.display = 'block';
+  clearTimeout(toastTimer); toastTimer = setTimeout(() => t.style.display = 'none', 3200);
+}
+const ls = {
+  get(k, d) { try { const v = localStorage.getItem(k); return v ? JSON.parse(v) : d; } catch (e) { return d; } },
+  set(k, v) { try { localStorage.setItem(k, JSON.stringify(v)); } catch (e) {} }
+};
+const logoHtml = `<img class="logo" src="logo.png" alt="Popais Food" onerror="this.style.display='none';this.nextElementSibling.style.display='block'"><span class="logotxt" style="display:none">POPAIS FOOD</span>`;
+
+/* ---------- estado ---------- */
+const DEF = { storeName: 'Popais Food', open: true, whatsapp: '', deliveryEnabled: true, pickupEnabled: true,
+  deliveryFee: 0, minOrder: 0, eta: '', notice: '', pixKey: '', payments: { cartao: true, pix: true, dinheiro: true } };
+const F0 = { type: '', name: '', phone: '', street: '', number: '', neighborhood: '', complement: '', reference: '',
+  payment: '', cardType: '', needChange: false, changeFor: '', notes: '' };
+const S = {
+  cats: [], products: [], settings: null, got: { cats: false, products: false }, err: '',
+  cart: ls.get('pf_cart', []), f: { ...F0, ...ls.get('pf_cust', {}) },
+  orderId: ls.get('pf_order', ''), order: null, modal: '', pm: null, installEv: null
+};
+const cfg = () => ({ ...DEF, ...(S.settings || {}), payments: { ...DEF.payments, ...((S.settings || {}).payments || {}) } });
+const isOpen = () => cfg().open !== false;
+const saveCart = () => ls.set('pf_cart', S.cart);
+const cartCount = () => S.cart.reduce((n, l) => n + l.qty, 0);
+function totals() {
+  const sub = Math.round(S.cart.reduce((s, l) => s + l.price * l.qty, 0) * 100) / 100;
+  const fee = S.f.type === 'entrega' ? (Number(cfg().deliveryFee) || 0) : 0;
+  return { sub, fee, total: Math.round((sub + fee) * 100) / 100 };
+}
+function syncCart() {
+  if (!S.got.products) return;
+  const before = S.cart.length; let changed = false;
+  S.cart = S.cart.filter(l => {
+    const p = S.products.find(x => x.id === l.id);
+    if (!p || p.available === false) return false;
+    const price = Number(p.price) || 0;
+    if (price !== l.price || p.name !== l.name) { l.price = price; l.name = p.name; changed = true; }
+    return true;
+  });
+  if (S.cart.length !== before) { changed = true; toast('Alguns itens ficaram indisponíveis e saíram do carrinho.'); }
+  if (changed) saveCart();
+}
+
+/* ---------- tela principal ---------- */
+function render() {
+  const c = cfg(), open = c.open !== false;
+  const cats = [...S.cats].sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+  const byName = (a, b) => String(a.name).localeCompare(String(b.name), 'pt-BR');
+  let body = '';
+  if (S.err) body = `<div class="empty"><big>😕</big>Não foi possível carregar o cardápio.<br><small>${esc(S.err)}</small></div>`;
+  else if (!(S.got.cats && S.got.products)) body = `<div class="empty"><big>🍔</big>Carregando cardápio...</div>`;
+  else {
+    const known = new Set(cats.map(x => x.id));
+    const secs = cats.map(x => ({ id: x.id, name: x.name, items: S.products.filter(p => p.category === x.id) }));
+    const orph = S.products.filter(p => !known.has(p.category));
+    if (orph.length) secs.push({ id: 'outros', name: 'Outros', items: orph });
+    const shown = secs.filter(s => s.items.length);
+    if (!shown.length) body = `<div class="empty"><big>🍔</big>O cardápio estará disponível em breve.</div>`;
+    else body = `<div class="chips">${shown.map(s => `<button class="chip" data-a="cat" data-id="${esc(s.id)}">${esc(s.name)}</button>`).join('')}</div>` +
+      shown.map(s => `<section class="sec" id="cat-${esc(s.id)}"><h2>${esc(s.name)}</h2>${s.items.sort(byName).map(pcard).join('')}</section>`).join('');
+  }
+  const info = [];
+  if (c.eta) info.push(`⏱️ ${esc(c.eta)}`);
+  if (c.deliveryEnabled) info.push(`🛵 Taxa ${Number(c.deliveryFee) > 0 ? money(c.deliveryFee) : 'grátis'}`);
+  if (Number(c.minOrder) > 0) info.push(`Pedido mínimo ${money(c.minOrder)}`);
+  if (S.installEv) info.push(`<button data-a="install">📲 Instalar o app</button>`);
+  const o = S.order;
+  const trk = o && o.status !== 'entregue' && o.status !== 'cancelado'
+    ? `<button class="trk" data-a="track">📦 Pedido #${esc(codeOf(o))} · <b>${esc(statusLabel(o))}</b> — toque para acompanhar</button>` : '';
+  $('#app').innerHTML = `
+  <header class="top"><div class="brand">${logoHtml}</div><span class="pill ${open ? 'open' : 'closed'}">${open ? '● Aberto' : '○ Fechado'}</span></header>
+  ${info.length ? `<div class="info">${info.join(' · ')}</div>` : ''}
+  ${open ? '' : `<div class="note red">A loja está fechada no momento. Você pode ver o cardápio, mas não é possível fazer pedidos agora.</div>`}
+  ${c.notice ? `<div class="note">📢 ${esc(c.notice)}</div>` : ''}
+  ${trk}
+  ${body}
+  <div style="height:100px"></div>
+  ${cartCount() ? `<button class="cartbar" data-a="cart"><span><em>${cartCount()}</em>Ver carrinho</span><span>${money(totals().sub)}</span></button>` : ''}`;
+}
+function pcard(p) {
+  const off = p.available === false;
+  return `<div class="pc ${off ? 'off' : ''}" data-a="open" data-id="${esc(p.id)}">
+    <div class="pi"><b>${esc(p.name)}</b>${p.description ? `<p>${esc(p.description)}</p>` : ''}<span>${off ? 'Indisponível' : money(p.price)}</span></div>
+    <div class="pth">${p.image ? `<img src="${p.image}" alt="">` : '🍔'}${off ? '' : '<i>+</i>'}</div>
+  </div>`;
+}
+
+/* ---------- janelas ---------- */
+function modal(html) {
+  const keep = $('#modal .sheet')?.scrollTop || 0;
+  $('#modal').innerHTML = `<div class="ov" data-a="closeModalBg"><div class="sheet">${html}</div></div>`;
+  const sh = $('#modal .sheet'); if (sh && keep) sh.scrollTop = keep;
+}
+function closeModal() { S.modal = ''; S.pm = null; $('#modal').innerHTML = ''; }
+
+/* produto */
+function openProduct(id) {
+  const p = S.products.find(x => x.id === id); if (!p) return;
+  if (p.available === false) return toast('Este produto está indisponível no momento.');
+  S.pm = { id, qty: 1 }; S.modal = 'product';
+  modal(`<div class="pimg">${p.image ? `<img src="${p.image}" alt="">` : '🍔'}</div>
+    <h3>${esc(p.name)}</h3>
+    ${p.description ? `<div class="muted">${esc(p.description)}</div>` : ''}
+    <div class="price">${money(p.price)}</div>
+    <label class="f">Observação (opcional)</label>
+    <textarea id="pm_note" rows="2" placeholder="Ex.: sem cebola, ponto da carne..."></textarea>
+    <div class="acts" style="align-items:center;justify-content:space-between">
+      <div class="step"><button data-a="pmMinus">−</button><b id="pm_qty">1</b><button data-a="pmPlus">+</button></div>
+      <button class="btn dark grow" id="pm_btn" data-a="pmAdd" ${isOpen() ? '' : 'disabled'}></button>
+    </div>
+    <div class="acts"><button class="btn ghost full" data-a="closeModal">Voltar ao cardápio</button></div>`);
+  updatePm();
+}
+function updatePm() {
+  const p = S.products.find(x => x.id === S.pm?.id); if (!p) return;
+  $('#pm_qty').textContent = S.pm.qty;
+  $('#pm_btn').textContent = isOpen() ? `Adicionar · ${money((Number(p.price) || 0) * S.pm.qty)}` : 'Loja fechada';
+}
+function pmAdd() {
+  const p = S.products.find(x => x.id === S.pm?.id); if (!p) return;
+  if (!isOpen()) return toast('A loja está fechada no momento.');
+  const note = ($('#pm_note').value || '').trim(), qty = S.pm.qty, key = p.id + '|' + note;
+  const ex = S.cart.find(l => l.key === key);
+  if (ex) ex.qty += qty;
+  else S.cart.push({ key, id: p.id, name: p.name, price: Number(p.price) || 0, qty, note });
+  saveCart(); closeModal(); render(); toast('Adicionado ao carrinho ✅');
+}
+
+/* carrinho */
+function openCart() { S.modal = 'cart'; renderCart(); }
+function renderCart() {
+  if (!S.cart.length) {
+    modal(`<h3>Seu pedido</h3><div class="empty"><big>🛒</big>Seu carrinho está vazio.</div>
+      <div class="acts"><button class="btn ghost full" data-a="closeModal">Ver cardápio</button></div>`);
+    return;
+  }
+  const lines = S.cart.map((l, i) => `<div class="cl">
+      <div class="cli"><b>${esc(l.name)}</b>${l.note ? `<small>📝 ${esc(l.note)}</small>` : ''}<span>${money(l.price * l.qty)}</span></div>
+      <div class="step"><button data-a="cMinus" data-i="${i}">−</button><b>${l.qty}</b><button data-a="cPlus" data-i="${i}">+</button></div>
+    </div>`).join('');
+  const t = totals();
+  modal(`<h3>Seu pedido</h3>${lines}
+    <div class="tot big"><span>Subtotal</span><span>${money(t.sub)}</span></div>
+    <div class="acts"><button class="btn dark full" data-a="checkout">Continuar</button>
+    <button class="btn ghost full" data-a="closeModal">Adicionar mais itens</button></div>`);
+}
+function cartQty(i, d) {
+  const l = S.cart[i]; if (!l) return;
+  l.qty += d; if (l.qty <= 0) S.cart.splice(i, 1);
+  saveCart(); render(); renderCart();
+}
+
+/* finalizar pedido */
+function normalizeForm() {
+  const c = cfg(), f = S.f;
+  if (!(f.type === 'entrega' && c.deliveryEnabled) && !(f.type === 'retirada' && c.pickupEnabled)) f.type = c.deliveryEnabled ? 'entrega' : 'retirada';
+  if (f.payment && !c.payments[f.payment]) f.payment = '';
+}
+function openCheckout() {
+  if (!S.cart.length) return;
+  normalizeForm(); S.modal = 'checkout'; renderCheckout();
+}
+function renderCheckout() {
+  const c = cfg(), f = S.f, t = totals();
+  const opt = (k, v, label, on) => `<button class="opt ${on ? 'on' : ''}" data-a="setF" data-k="${k}" data-v="${v}">${label}</button>`;
+  const types = [];
+  if (c.deliveryEnabled) types.push(opt('type', 'entrega', '🛵 Entrega', f.type === 'entrega'));
+  if (c.pickupEnabled) types.push(opt('type', 'retirada', '🛍️ Retirada', f.type === 'retirada'));
+  const pays = [];
+  if (c.payments.cartao) pays.push(opt('payment', 'cartao', '💳 Cartão', f.payment === 'cartao'));
+  if (c.payments.pix) pays.push(opt('payment', 'pix', '⚡ Pix', f.payment === 'pix'));
+  if (c.payments.dinheiro) pays.push(opt('payment', 'dinheiro', '💵 Dinheiro', f.payment === 'dinheiro'));
+  const inp = (k, label, ph, extra = '') => `<label class="f">${label}</label><input data-f="${k}" value="${esc(f[k])}" placeholder="${esc(ph)}" ${extra}>`;
+  const addr = f.type === 'entrega' ? `
+    <h3 style="margin-top:18px">Endereço de entrega</h3>
+    <div class="two"><div style="flex:3">${inp('street', 'Rua', 'Nome da rua', 'autocomplete="address-line1"')}</div><div style="flex:1">${inp('number', 'Número', 'Nº')}</div></div>
+    ${inp('neighborhood', 'Bairro', 'Bairro')}
+    ${inp('complement', 'Complemento (opcional)', 'Apto, bloco...')}
+    ${inp('reference', 'Ponto de referência (opcional)', 'Perto de...')}` : '';
+  let payExtra = '';
+  if (f.payment === 'cartao') payExtra = `<label class="f">Tipo do cartão</label><div class="opts">${opt('cardType', 'credito', 'Crédito', f.cardType === 'credito')}${opt('cardType', 'debito', 'Débito', f.cardType === 'debito')}</div>`;
+  if (f.payment === 'dinheiro') payExtra = `<label class="f">Precisa de troco?</label><div class="opts">${opt('needChange', '0', 'Não preciso', !f.needChange)}${opt('needChange', '1', 'Preciso de troco', f.needChange)}</div>` +
+    (f.needChange ? inp('changeFor', 'Troco para quanto? (R$)', '50,00', 'inputmode="decimal"') : '');
+  const min = Number(c.minOrder) || 0;
+  modal(`<h3>Finalizar pedido</h3>
+    ${isOpen() ? '' : '<div class="note red" style="margin:0 0 10px">A loja está fechada no momento.</div>'}
+    <div class="opts">${types.join('')}</div>
+    ${inp('name', 'Seu nome', 'Como podemos te chamar?', 'autocomplete="name"')}
+    ${inp('phone', 'Telefone / WhatsApp (com DDD)', '11999999999', 'type="tel" inputmode="tel" autocomplete="tel"')}
+    ${addr}
+    <h3 style="margin-top:18px">Pagamento</h3>
+    <div class="muted" style="margin-bottom:8px">Você não paga pelo app: o pagamento é feito na ${f.type === 'retirada' ? 'retirada' : 'entrega'}.</div>
+    <div class="opts">${pays.join('')}</div>${payExtra}
+    <label class="f">Observações do pedido (opcional)</label>
+    <textarea data-f="notes" rows="2" placeholder="Algo que a gente precise saber?">${esc(f.notes)}</textarea>
+    <div class="card">
+      <div class="tot"><span>Subtotal</span><span>${money(t.sub)}</span></div>
+      ${f.type === 'entrega' ? `<div class="tot"><span>Taxa de entrega</span><span>${money(t.fee)}</span></div>` : ''}
+      <div class="tot big"><span>Total</span><span>${money(t.total)}</span></div>
+      ${min > 0 && t.sub < min ? `<div class="note red" style="margin:10px 0 0">Pedido mínimo: ${money(min)}. Faltam ${money(min - t.sub)}.</div>` : ''}
+    </div>
+    <div class="acts"><button class="btn green full" id="send_btn" data-a="send" ${isOpen() ? '' : 'disabled'}>Enviar pedido · ${money(t.total)}</button>
+    <button class="btn ghost full" data-a="cart">Voltar ao carrinho</button></div>`);
+}
+function validate() {
+  const f = S.f, c = cfg(), t = totals();
+  if (!isOpen()) return 'A loja está fechada no momento.';
+  if (!S.cart.length) return 'Seu carrinho está vazio.';
+  if (Number(c.minOrder) > 0 && t.sub < Number(c.minOrder)) return `O pedido mínimo é ${money(c.minOrder)}.`;
+  if (f.name.trim().length < 2) return 'Digite o seu nome.';
+  if (f.phone.replace(/\D/g, '').length < 10) return 'Digite um telefone válido, com DDD.';
+  if (f.type === 'entrega' && (!f.street.trim() || !f.number.trim() || !f.neighborhood.trim())) return 'Preencha rua, número e bairro.';
+  if (!f.payment) return 'Escolha a forma de pagamento.';
+  if (f.payment === 'cartao' && !f.cardType) return 'Escolha crédito ou débito.';
+  if (f.payment === 'dinheiro' && f.needChange && !(parseMoney(f.changeFor) > t.total)) return 'O valor do troco precisa ser maior que o total do pedido.';
+  return '';
+}
+async function sendOrder() {
+  const err = validate(); if (err) return toast(err);
+  const f = S.f, t = totals();
+  const b = $('#send_btn'); b.disabled = true; b.textContent = 'Enviando...';
+  const ref = doc(collection(db, 'orders'));
+  const data = {
+    code: ref.id.slice(0, 5).toUpperCase(), status: 'novo', createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
+    type: f.type, customerName: f.name.trim(), phone: f.phone.trim(),
+    address: f.type === 'entrega' ? { street: f.street.trim(), number: f.number.trim(), neighborhood: f.neighborhood.trim(), complement: f.complement.trim(), reference: f.reference.trim() } : {},
+    items: S.cart.map(l => ({ id: l.id, name: l.name, price: l.price, qty: l.qty, note: l.note || '' })),
+    notes: f.notes.trim(), subtotal: t.sub, deliveryFee: t.fee, total: t.total,
+    payment: f.payment, cardType: f.payment === 'cartao' ? f.cardType : '',
+    changeFor: f.payment === 'dinheiro' && f.needChange ? parseMoney(f.changeFor) : 0
+  };
+  try {
+    await setDoc(ref, data);
+    ls.set('pf_cust', { type: f.type, name: f.name, phone: f.phone, street: f.street, number: f.number, neighborhood: f.neighborhood, complement: f.complement, reference: f.reference, payment: f.payment, cardType: f.cardType });
+    S.cart = []; saveCart(); S.f.notes = ''; S.f.needChange = false; S.f.changeFor = '';
+    S.orderId = ref.id; ls.set('pf_order', S.orderId); S.order = null;
+    watchOrder(); render(); openTrack();
+  } catch (e) {
+    console.error(e);
+    toast(e.code === 'permission-denied' ? 'Não foi possível enviar o pedido. Chame a loja no WhatsApp.' : 'Erro ao enviar: ' + (e.message || e.code));
+    b.disabled = false; b.textContent = `Enviar pedido · ${money(t.total)}`;
+  }
+}
+
+/* acompanhamento */
+const STEPS = {
+  entrega: [['novo', 'Pedido enviado'], ['preparo', 'Em preparo'], ['saiu', 'Saiu para entrega'], ['entregue', 'Entregue']],
+  retirada: [['novo', 'Pedido enviado'], ['preparo', 'Em preparo'], ['saiu', 'Pronto para retirada'], ['entregue', 'Retirado']]
+};
+const codeOf = o => o.code || String(o.id).slice(0, 5).toUpperCase();
+const statusLabel = o => o.status === 'novo' ? 'Pedido enviado' : o.status === 'preparo' ? 'Em preparo'
+  : o.status === 'saiu' ? (o.type === 'retirada' ? 'Pronto para retirada' : 'Saiu para entrega')
+  : o.status === 'entregue' ? 'Finalizado' : o.status === 'cancelado' ? 'Cancelado' : o.status;
+const statusMsg = o => o.status === 'preparo' ? 'Seu pedido está sendo preparado! 👨‍🍳'
+  : o.status === 'saiu' ? (o.type === 'retirada' ? 'Seu pedido está pronto para retirada! 🛍️' : 'Seu pedido saiu para entrega! 🛵')
+  : o.status === 'entregue' ? 'Pedido finalizado. Bom apetite! 🍔' : o.status === 'cancelado' ? 'Seu pedido foi cancelado.' : 'Pedido recebido!';
+function openTrack() { S.modal = 'track'; renderTrack(); }
+function renderTrack() {
+  const o = S.order;
+  if (!o) { modal(`<h3>Seu pedido</h3><div class="empty"><big>⏳</big>Carregando seu pedido...</div><div class="acts"><button class="btn ghost full" data-a="closeModal">Fechar</button></div>`); return; }
+  const steps = STEPS[o.type === 'retirada' ? 'retirada' : 'entrega'];
+  const idx = steps.findIndex(s => s[0] === o.status);
+  const stepsHtml = o.status === 'cancelado'
+    ? `<div class="note red" style="margin:12px 0">Este pedido foi cancelado. Se tiver dúvidas, fale com a loja.</div>`
+    : `<div class="steps">${steps.map((s, i) => `<div class="stp ${i <= idx ? 'on' : ''} ${i === idx ? 'cur' : ''}"><i>${i < idx ? '✓' : i + 1}</i><span>${s[1]}</span></div>`).join('')}</div>`;
+  const items = (o.items || []).map(i => `<li><span><b>${esc(i.qty)}x</b> ${esc(i.name)}</span><span>${money((Number(i.price) || 0) * (Number(i.qty) || 1))}</span>${i.note ? `<small>📝 ${esc(i.note)}</small>` : ''}</li>`).join('');
+  const c = cfg(); let wa = String(c.whatsapp || '').replace(/\D/g, ''); if (wa && wa.length <= 11) wa = '55' + wa;
+  const done = o.status === 'entregue' || o.status === 'cancelado';
+  const pay = o.payment === 'pix' ? 'Pix' : o.payment === 'cartao' ? 'Cartão' + (o.cardType ? ' · ' + (o.cardType === 'credito' ? 'Crédito' : 'Débito') : '')
+    : 'Dinheiro' + (Number(o.changeFor) > 0 ? ` · troco para ${money(o.changeFor)}` : '');
+  modal(`<h3>Pedido #${esc(codeOf(o))}</h3>
+    <div class="muted">${esc(statusMsg(o))}</div>
+    ${stepsHtml}
+    <div class="card"><ul class="its">${items}</ul>
+      <div class="tot big"><span>Total</span><span>${money(o.total)}</span></div>
+      <div class="muted" style="margin-top:6px">💳 ${esc(pay)} · ${o.type === 'retirada' ? 'Retirada no balcão' : 'Entrega'}</div></div>
+    ${o.payment === 'pix' && c.pixKey ? `<div class="card pix"><div><small class="muted">Chave Pix da loja</small><br><b>${esc(c.pixKey)}</b></div><button class="btn grow" style="flex:none" data-a="copyPix">Copiar</button></div>` : ''}
+    <div class="acts">
+      ${wa ? `<a class="btn green full" target="_blank" rel="noopener" href="https://wa.me/${wa}?text=${encodeURIComponent('Olá! Meu pedido na ' + c.storeName + ' é o #' + codeOf(o) + '.')}">💬 Falar com a loja</a>` : ''}
+      ${done ? `<button class="btn dark full" data-a="newOrder">Fazer um novo pedido</button>` : ''}
+      <button class="btn ghost full" data-a="closeModal">Fechar</button>
+    </div>`);
+}
+let unsubOrder = null;
+function watchOrder() {
+  if (unsubOrder) { unsubOrder(); unsubOrder = null; }
+  if (!S.orderId) { S.order = null; return; }
+  unsubOrder = onSnapshot(doc(db, 'orders', S.orderId), snap => {
+    if (!snap.exists()) {
+      if (!snap.metadata.fromCache) { S.order = null; S.orderId = ''; ls.set('pf_order', ''); }
+      render(); if (S.modal === 'track') closeModal(); return;
+    }
+    const prev = S.order?.status;
+    S.order = { id: snap.id, ...snap.data() };
+    if (prev && prev !== S.order.status) { toast(statusMsg(S.order)); try { navigator.vibrate && navigator.vibrate(200); } catch (e) {} }
+    render(); if (S.modal === 'track') renderTrack();
+  }, () => { S.order = null; render(); });
+}
+
+/* ---------- dados em tempo real ---------- */
+function start() {
+  render();
+  onSnapshot(collection(db, 'categories'), snap => {
+    S.cats = snap.docs.map(d => ({ id: d.id, ...d.data() })); S.got.cats = true; S.err = ''; render();
+  }, e => { S.err = e.code || e.message; render(); });
+  onSnapshot(collection(db, 'products'), snap => {
+    S.products = snap.docs.map(d => ({ id: d.id, ...d.data() })); S.got.products = true; S.err = ''; syncCart(); render();
+  }, e => { S.err = e.code || e.message; render(); });
+  onSnapshot(doc(db, 'settings', 'store'), snap => {
+    S.settings = snap.exists() ? snap.data() : null; render();
+    if (S.modal === 'checkout') { normalizeForm(); }
+  }, () => {});
+  watchOrder();
+}
+
+/* ---------- eventos ---------- */
+const H = {
+  cat: el => { const t = document.getElementById('cat-' + el.dataset.id); if (t) t.scrollIntoView({ behavior: 'smooth', block: 'start' }); },
+  open: el => openProduct(el.dataset.id),
+  pmMinus: () => { if (S.pm && S.pm.qty > 1) { S.pm.qty--; updatePm(); } },
+  pmPlus: () => { if (S.pm && S.pm.qty < 50) { S.pm.qty++; updatePm(); } },
+  pmAdd,
+  cart: openCart,
+  cMinus: el => cartQty(Number(el.dataset.i), -1),
+  cPlus: el => cartQty(Number(el.dataset.i), 1),
+  checkout: openCheckout,
+  setF: el => {
+    const k = el.dataset.k, v = el.dataset.v;
+    S.f[k] = k === 'needChange' ? v === '1' : v;
+    if (k === 'payment') { S.f.cardType = ''; S.f.needChange = false; S.f.changeFor = ''; }
+    renderCheckout();
+  },
+  send: sendOrder,
+  track: openTrack,
+  copyPix: async () => { try { await navigator.clipboard.writeText(cfg().pixKey); toast('Chave Pix copiada ✅'); } catch (e) { toast('Não foi possível copiar. Selecione e copie a chave.'); } },
+  newOrder: () => { S.orderId = ''; S.order = null; ls.set('pf_order', ''); watchOrder(); closeModal(); render(); },
+  install: async () => { const ev = S.installEv; if (!ev) return; ev.prompt(); try { await ev.userChoice; } catch (e) {} S.installEv = null; render(); },
+  closeModal,
+  closeModalBg: (el, e) => { if (e.target === el) closeModal(); }
+};
+document.addEventListener('click', e => {
+  const el = e.target.closest('[data-a]'); if (!el) return;
+  const f = H[el.dataset.a]; if (f) f(el, e);
+});
+document.addEventListener('input', e => {
+  const k = e.target.dataset?.f; if (k) S.f[k] = e.target.value;
+});
+window.addEventListener('beforeinstallprompt', e => { e.preventDefault(); S.installEv = e; render(); });
+window.addEventListener('appinstalled', () => { S.installEv = null; render(); });
+if ('serviceWorker' in navigator) window.addEventListener('load', () => navigator.serviceWorker.register('sw.js').catch(() => {}));
+
+start();
+</script>
+</body>
+</html>
