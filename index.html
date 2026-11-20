@@ -105,6 +105,7 @@ ul.its li small{flex-basis:100%;color:var(--muted)}
 <script type="module">
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-app.js";
 import { initializeFirestore, collection, doc, setDoc, onSnapshot, serverTimestamp } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore.js";
+import { getMessaging, getToken, isSupported } from "https://www.gstatic.com/firebasejs/10.12.2/firebase-messaging.js";
 
 const firebaseConfig = {
   apiKey: "AIzaSyBeG0oZtYUQ6JUgXnCcpWTeGt1I-dDXiV0",
@@ -116,6 +117,25 @@ const firebaseConfig = {
 };
 const app = initializeApp(firebaseConfig);
 const db = initializeFirestore(app, { experimentalAutoDetectLongPolling: true });
+
+/* ---------- notificações push ---------- */
+const VAPID_KEY = 'BMchIRxSi8H0ZkR80BJF16lh4MCMUc2qSKo5gYM9G86FaOPpox0DgwR-gPGyIRDSa6GRH_tmpJg_yK5aWeRhB00';
+async function getPushToken() {
+  try {
+    if (!VAPID_KEY || VAPID_KEY.startsWith('COLE')) return '';
+    if (!('Notification' in window) || !('serviceWorker' in navigator)) return '';
+    if (!(await isSupported())) return '';
+    let perm = Notification.permission;
+    if (perm === 'default') perm = await Notification.requestPermission();
+    if (perm !== 'granted') return '';
+    const reg = await navigator.serviceWorker.ready;
+    const t = await Promise.race([
+      getToken(getMessaging(app), { vapidKey: VAPID_KEY, serviceWorkerRegistration: reg }),
+      new Promise(r => setTimeout(() => r(''), 8000))
+    ]);
+    return t || '';
+  } catch (e) { console.warn('push', e); return ''; }
+}
 
 /* ---------- utilidades ---------- */
 const $ = s => document.querySelector(s);
@@ -350,6 +370,7 @@ async function sendOrder() {
   const f = S.f, t = totals();
   const b = $('#send_btn'); b.disabled = true; b.textContent = 'Enviando...';
   const ref = doc(collection(db, 'orders'));
+  const fcmToken = await getPushToken();
   const data = {
     code: ref.id.slice(0, 5).toUpperCase(), status: 'novo', createdAt: serverTimestamp(), updatedAt: serverTimestamp(),
     type: f.type, customerName: f.name.trim(), phone: f.phone.trim(),
@@ -357,7 +378,8 @@ async function sendOrder() {
     items: S.cart.map(l => ({ id: l.id, name: l.name, price: l.price, qty: l.qty, note: l.note || '' })),
     notes: f.notes.trim(), subtotal: t.sub, deliveryFee: t.fee, total: t.total,
     payment: f.payment, cardType: f.payment === 'cartao' ? f.cardType : '',
-    changeFor: f.payment === 'dinheiro' && f.needChange ? parseMoney(f.changeFor) : 0
+    changeFor: f.payment === 'dinheiro' && f.needChange ? parseMoney(f.changeFor) : 0,
+    ...(fcmToken ? { fcmToken } : {})
   };
   try {
     await setDoc(ref, data);
